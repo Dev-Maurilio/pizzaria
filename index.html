@@ -416,6 +416,94 @@
     </div>
 </aside>
 
+<!-- Product Modal -->
+<div id="product-modal"
+    class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300"
+        id="modal-content">
+
+        <!-- Header -->
+        <div class="relative h-40">
+            <img id="modal-img" src="" alt="Pizza" class="w-full h-full object-cover">
+            <button onclick="closeModal()"
+                class="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-md hover:bg-white text-gray-800 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <h3 id="modal-title" class="text-2xl font-bold text-white">Nome do Produto</h3>
+            </div>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="p-6 max-h-[60vh] overflow-y-auto space-y-6">
+
+            <!-- Description -->
+            <p id="modal-desc" class="text-gray-600 text-sm"></p>
+
+            <!-- Size Selection -->
+            <div id="modal-sizes" class="space-y-3">
+                <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide">Escolha o Tamanho</h4>
+                <div class="grid grid-cols-2 gap-3" id="size-options">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <!-- Half-and-Half Toggle -->
+            <div id="modal-half-section" class="hidden space-y-3 pt-4 border-t border-gray-100">
+                <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide">Sabores</h4>
+
+                <div class="flex gap-2 p-1 bg-gray-100 rounded-lg select-none">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="halfType" value="single" class="peer hidden"
+                            onchange="toggleHalfLogic('single')" checked>
+                        <div
+                            class="py-2 text-center rounded-md text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-brand-red peer-checked:shadow-sm transition-all">
+                            Sabor Único
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="halfType" value="half" class="peer hidden"
+                            onchange="toggleHalfLogic('half')">
+                        <div
+                            class="py-2 text-center rounded-md text-sm font-bold text-gray-500 peer-checked:bg-white peer-checked:text-brand-red peer-checked:shadow-sm transition-all">
+                            2 Sabores
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Second Flavor Selector (Visual Grid) -->
+                <div id="second-flavor-wrapper" class="hidden animate-fade-in-up">
+                    <label class="block text-xs font-semibold text-gray-500 mb-2">Escolha o 2º Sabor</label>
+                    <div id="second-flavor-grid"
+                        class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1 pb-2 custom-scrollbar">
+                        <!-- JS Injected Cards -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+            <div class="flex flex-col">
+                <span class="text-xs text-gray-500">Total</span>
+                <span id="modal-price" class="text-2xl font-bold text-brand-red">R$ 0,00</span>
+            </div>
+            <button onclick="addModalToCart()"
+                class="bg-brand-red hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1 flex items-center gap-2">
+                Adicionar
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Shopping Cart Logic -->
 <script>
     /**
@@ -554,25 +642,31 @@
             const card = document.createElement('article');
             card.className = "menu-item group bg-white rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden flex md:flex-col h-32 md:h-auto border border-gray-100 opacity-0 translate-y-4";
 
+            // Logic for Price Display
+            let priceDisplay = '';
+            if (item.prices) {
+                const minPrice = Math.min(...Object.values(item.prices));
+                priceDisplay = `<span class="text-xs font-normal text-gray-500 mr-1">A partir de</span> ${formatCurrency(minPrice)}`;
+            } else {
+                priceDisplay = formatCurrency(item.price);
+            }
+
             card.innerHTML = `
                 <div class="w-1/3 md:w-full h-full md:h-48 relative overflow-hidden">
                     <img src="${item.image}" alt="${item.name}"
                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
                 </div>
                 <div class="w-2/3 md:w-full p-4 flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-1">
+                    <div class="flex flex-col items-start mb-1">
                         <h3 class="text-lg font-bold leading-tight text-gray-800">${item.name}</h3>
-                        <span class="bg-red-50 text-brand-red text-xs font-bold px-2 py-1 rounded-full">${formatCurrency(item.price)}</span>
+                        <span class="bg-red-50 text-brand-red text-xs font-bold px-2 py-1 rounded-full mt-1">${priceDisplay}</span>
                     </div>
-                    <p class="text-gray-500 text-xs md:text-sm mb-3 line-clamp-2">
+                    <p class="text-gray-500 text-xs md:text-sm mb-3 line-clamp-2 mt-2">
                         ${item.description}
                     </p>
-                    <button onclick="addToCart('${item.id}')"
+                    <button onclick="openProductModal('${item.id}')"
                         class="w-full bg-brand-red text-white text-xs md:text-sm font-bold py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-1">
                         Adicionar
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
                     </button>
                 </div>
             `;
@@ -588,6 +682,275 @@
 
     function filterMenu(category) {
         renderMenu(category); // Reuse render logic
+    }
+
+    // --- Modal Logic ---
+
+    let currentModalItem = null;
+    let selectedSize = null;
+    let currentSecondFlavorId = null; // Visual Grid Selection
+
+    function openProductModal(itemId) {
+        if (!checkOpeningHours()) return;
+
+        const item = CONFIG.menu.find(m => m.id === itemId);
+        currentModalItem = item;
+        selectedSize = null;
+        selectedSecondFlavor = null;
+
+        // Populate Modal
+        document.getElementById('modal-img').src = item.image;
+        document.getElementById('modal-title').innerText = item.name;
+        document.getElementById('modal-desc').innerText = item.description;
+
+        const sizesContainer = document.getElementById('size-options');
+        sizesContainer.innerHTML = '';
+
+        const halfSection = document.getElementById('modal-half-section');
+        const priceElement = document.getElementById('modal-price');
+
+        // Logic: Simple Product vs Complex (Pizzas)
+        if (item.prices) {
+            // It's a Pizza (or item with sizes)
+            Object.keys(item.prices).forEach(size => {
+                const btn = document.createElement('button');
+                btn.className = `size-btn border border-gray-200 rounded-lg p-3 text-center hover:border-brand-red hover:bg-red-50 transition-all`;
+                btn.id = `size-${size}`;
+                btn.onclick = () => selectSize(size);
+                btn.innerHTML = `<span class="block font-bold text-gray-800">${size}</span>`;
+                sizesContainer.appendChild(btn);
+            });
+
+            // Show Half Section?
+            if (item.allowHalf) {
+                halfSection.classList.remove('hidden');
+                // Reset Toggle
+                document.querySelector('input[name="halfType"][value="single"]').checked = true;
+                toggleHalfLogic('single');
+            } else {
+                halfSection.classList.add('hidden');
+            }
+
+            // Reset Price
+            priceElement.innerText = "Selecione o tamanho";
+            priceElement.classList.remove('text-brand-red');
+            priceElement.classList.add('text-gray-400', 'text-lg');
+
+        } else {
+            // Simple Item (Drink/Sandwich)
+            sizesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Tamanho único</p>';
+            halfSection.classList.add('hidden');
+            priceElement.innerText = formatCurrency(item.price);
+            priceElement.classList.add('text-brand-red');
+            priceElement.classList.remove('text-gray-400', 'text-lg');
+
+            // Auto-select "default" size for internal logic
+            selectedSize = 'default';
+        }
+
+        // Show Modal
+        const modal = document.getElementById('product-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            document.getElementById('modal-content').classList.remove('scale-95');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('product-modal');
+        modal.classList.add('opacity-0');
+        document.getElementById('modal-content').classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function renderSecondFlavorOptions(size) {
+        const grid = document.getElementById('second-flavor-grid');
+        grid.innerHTML = '';
+
+        // Filter: Pizzas, excluding current
+        const options = CONFIG.menu.filter(m => m.category === 'pizzas' && m.id !== currentModalItem.id);
+
+        options.forEach(item => {
+            const price = item.prices ? item.prices[size] : 0;
+            const isSelected = currentSecondFlavorId === item.id;
+
+            const card = document.createElement('div');
+            // Mini Card Styling
+            card.className = `flavor-card relative flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'border-brand-red bg-red-50 shadow-sm' : 'border-gray-100 bg-white hover:bg-gray-50'}`;
+            card.onclick = () => selectSecondFlavor(item.id);
+
+            card.innerHTML = `
+                <img src="${item.image}" class="w-12 h-12 rounded-full object-cover border border-gray-200">
+                <div class="flex-1 min-w-0">
+                    <h5 class="text-sm font-bold text-gray-800 truncate">${item.name}</h5>
+                    <p class="text-[10px] text-gray-500 line-clamp-1 leading-tight">${item.description}</p>
+                    <span class="text-xs font-semibold text-brand-red block mt-0.5">${formatCurrency(price)}</span>
+                </div>
+                <!-- Check Icon -->
+                <div class="${isSelected ? 'block' : 'hidden'} text-brand-red animate-fade-in">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function selectSecondFlavor(id) {
+        currentSecondFlavorId = id;
+        renderSecondFlavorOptions(selectedSize); // Re-render to update highlights
+        updateModalPrice();
+    }
+
+    function selectSize(size) {
+        selectedSize = size;
+
+        // Highlight logic
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            if (btn.id === `size-${size}`) {
+                btn.classList.add('border-brand-red', 'bg-red-50', 'ring-2', 'ring-red-200');
+                btn.classList.remove('border-gray-200');
+            } else {
+                btn.classList.remove('border-brand-red', 'bg-red-50', 'ring-2', 'ring-red-200');
+                btn.classList.add('border-gray-200');
+            }
+        });
+
+        updateModalPrice();
+    }
+
+    function toggleHalfLogic(type) {
+        const wrapper = document.getElementById('second-flavor-wrapper');
+        const select = document.getElementById('second-flavor-select');
+
+        if (type === 'half') {
+            wrapper.classList.remove('hidden');
+            select.value = ""; // Reset
+            selectedSecondFlavor = null;
+        } else {
+            wrapper.classList.add('hidden');
+            selectedSecondFlavor = null;
+        }
+        updateModalPrice();
+    }
+
+    function updateModalPrice() {
+        if (!currentModalItem) return;
+        const priceElement = document.getElementById('modal-price');
+
+        // Simple Item
+        if (!currentModalItem.prices) {
+            priceElement.innerText = formatCurrency(currentModalItem.price);
+            selectedSize = 'default';
+            return;
+        }
+
+        // Complex Item without size selected
+        if (!selectedSize) {
+            priceElement.innerText = "Selecione o tamanho";
+            return;
+        }
+
+        // Calculate Price
+        let finalPrice = currentModalItem.prices[selectedSize];
+
+        // Half Logic
+        const halfType = document.querySelector('input[name="halfType"]:checked')?.value;
+        const secondFlavorId = currentSecondFlavorId; // Use new var
+
+        if (halfType === 'half' && secondFlavorId) {
+            const secondItem = CONFIG.menu.find(m => m.id === secondFlavorId);
+            if (secondItem && secondItem.prices) {
+                const secondPrice = secondItem.prices[selectedSize];
+                finalPrice = Math.max(finalPrice, secondPrice);
+            }
+        }
+
+        priceElement.innerText = formatCurrency(finalPrice);
+        priceElement.classList.add('text-brand-red');
+        priceElement.classList.remove('text-gray-400');
+    }
+
+    function addModalToCart() {
+        if (!currentModalItem) return;
+
+        // Validation
+        if (currentModalItem.prices && !selectedSize) {
+            alert("Por favor, selecione um tamanho.");
+            return;
+        }
+
+        const halfType = document.querySelector('input[name="halfType"]:checked')?.value;
+        if (halfType === 'half' && !document.getElementById('second-flavor-select').value) {
+            alert("Por favor, escolha o segundo sabor.");
+            return;
+        }
+
+        // Build Cart Object
+        let finalName = currentModalItem.name;
+        let finalPrice = 0;
+        let flavorDetail = "";
+
+        if (currentModalItem.prices) {
+            // Complex Item
+            let price = currentModalItem.prices[selectedSize];
+
+            if (halfType === 'half') {
+                const secondId = document.getElementById('second-flavor-select').value;
+                const secondItem = CONFIG.menu.find(m => m.id === secondId);
+                const secondPrice = secondItem.prices[selectedSize];
+
+                finalPrice = Math.max(price, secondPrice);
+                finalName = `Pizza ${selectedSize} (${currentModalItem.name} / ${secondItem.name})`;
+                flavorDetail = "Meio-a-Meio";
+            } else {
+                finalPrice = price;
+                finalName = `Pizza ${selectedSize} - ${currentModalItem.name}`;
+                flavorDetail = "Sabor Único";
+            }
+        } else {
+            // Simple Item
+            finalPrice = currentModalItem.price;
+        }
+
+        // Add
+        addToCartExpanded({
+            id: currentModalItem.id, // Base ID (might duplicate for combinations, handled by key)
+            key: Date.now().toString(), // Unique key for custom pizzas
+            name: finalName,
+            price: finalPrice,
+            quantity: 1,
+            detail: flavorDetail
+        });
+
+        closeModal();
+    }
+
+    // --- Cart Logic Expanded ---
+
+    function addToCartExpanded(newItem) {
+        if (!checkOpeningHours()) return;
+
+        // For complex items (pizzas), we don't aggregate to avoid confusion with sizing/flavors unless fully identical.
+        // For simplicity, we'll treat every pizza addition as unique line item for now, 
+        // OR search for identical name + price.
+
+        const existingItem = cart.find(item => item.name === newItem.name && item.price === newItem.price);
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push(newItem);
+        }
+
+        saveData();
+        renderCartUI();
+        openCart();
+    }
+
+    // Redirect old calls
+    function addToCart(itemId) {
+        openProductModal(itemId);
     }
 
     // --- Core Logic ---
@@ -643,8 +1006,12 @@
         openCart();
     }
 
-    function updateQuantity(itemId, change) {
-        const itemIndex = cart.findIndex(item => item.id === itemId);
+    function updateQuantity(itemKey, change) {
+        // Use Name as ID or specialized Key
+        // Refactored to use 'name' as key for simple items or 'key' property.
+        // Let's fix the logic: item.name is unique enough for this scope?
+        const itemIndex = cart.findIndex(item => (item.key && item.key === itemKey) || item.name === itemKey);
+
         if (itemIndex === -1) return;
 
         cart[itemIndex].quantity += change;
@@ -694,6 +1061,8 @@
 
     // --- Render Cart ---
 
+    // --- Render Cart ---
+
     function renderCartUI() {
         // 1. Badge Count
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -714,18 +1083,25 @@
 
         cart.forEach(item => {
             const itemTotal = item.price * item.quantity;
+            // Use key for complex items, name for simple.
+            const uniqueId = item.key || item.name;
+
+            // Detail line
+            const detailHtml = item.detail ? `<div class="text-[10px] text-gray-400 font-medium uppercase tracking-wide">${item.detail}</div>` : '';
+
             cartItemsContainer.innerHTML += `
                 <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100 shadow-sm animate-fade-in-up">
                     <div class="flex-1">
-                        <h4 class="font-bold text-gray-800">${item.name}</h4>
-                        <div class="text-sm text-gray-500">Unit: ${formatCurrency(item.price)}</div>
+                        <h4 class="font-bold text-gray-800 text-sm leading-tight">${item.name}</h4>
+                        ${detailHtml}
+                        <div class="text-xs text-gray-500 mt-1">Unit: ${formatCurrency(item.price)}</div>
                     </div>
                     <div class="flex flex-col items-end gap-2">
                         <div class="font-bold text-brand-red">${formatCurrency(itemTotal)}</div>
                         <div class="flex items-center bg-gray-100 rounded-lg overflow-hidden">
-                            <button onclick="updateQuantity('${item.id}', -1)" class="px-3 py-1 hover:bg-gray-200 text-brand-red font-bold">-</button>
+                            <button onclick="updateQuantity('${uniqueId}', -1)" class="px-3 py-1 hover:bg-gray-200 text-brand-red font-bold">-</button>
                             <span class="px-2 font-medium text-sm w-8 text-center">${item.quantity}</span>
-                            <button onclick="updateQuantity('${item.id}', 1)" class="px-3 py-1 hover:bg-gray-200 text-brand-red font-bold">+</button>
+                            <button onclick="updateQuantity('${uniqueId}', 1)" class="px-3 py-1 hover:bg-gray-200 text-brand-red font-bold">+</button>
                         </div>
                     </div>
                 </div>`;
@@ -808,6 +1184,10 @@
         cart.forEach(item => {
             const itemTotal = item.price * item.quantity;
             msg += `${item.quantity}x ${item.name} - ${formatCurrency(itemTotal)}\n`;
+            if (item.detail) {
+                msg += `   (${item.detail})\n`;
+            }
+            msg += "\n";
         });
 
         // Observation
@@ -831,7 +1211,7 @@
             }
         }
 
-        msg += `\n------------------\n`;
+        msg += `------------------\n`;
         msg += `TIPO: ${orderType === 'delivery' ? 'Entrega' : 'Retirada'}\n`;
 
         if (orderType === 'delivery') {
@@ -893,6 +1273,177 @@
         .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
     `;
     document.head.appendChild(style);
+
+    // --- Overrides for Visual Grid Logic ---
+
+    function selectSize(size) {
+        selectedSize = size;
+
+        // Highlight logic
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            if (btn.id === `size-${size}`) {
+                btn.classList.add('border-brand-red', 'bg-red-50', 'ring-2', 'ring-red-200');
+                btn.classList.remove('border-gray-200');
+            } else {
+                btn.classList.remove('border-brand-red', 'bg-red-50', 'ring-2', 'ring-red-200');
+                btn.classList.add('border-gray-200');
+            }
+        });
+
+        // Re-render second flavors if half is active (to show correct prices)
+        const halfType = document.querySelector('input[name="halfType"]:checked')?.value;
+        if (halfType === 'half') {
+            renderSecondFlavorOptions(size);
+        }
+
+        updateModalPrice();
+    }
+
+    function toggleHalfLogic(type) {
+        const wrapper = document.getElementById('second-flavor-wrapper');
+
+        if (type === 'half') {
+            wrapper.classList.remove('hidden');
+            currentSecondFlavorId = null; // Reset selection
+
+            if (selectedSize) {
+                renderSecondFlavorOptions(selectedSize);
+            } else {
+                document.getElementById('second-flavor-grid').innerHTML = '<p class="text-xs text-gray-500 text-center py-4">Selecione o tamanho primeiro.</p>';
+            }
+
+        } else {
+            wrapper.classList.add('hidden');
+            currentSecondFlavorId = null;
+        }
+        updateModalPrice();
+    }
+
+    function addModalToCart() {
+        if (!currentModalItem) return;
+
+        // Validation
+        if (currentModalItem.prices && !selectedSize) {
+            alert("Por favor, selecione um tamanho.");
+            return;
+        }
+
+        const halfType = document.querySelector('input[name="halfType"]:checked')?.value;
+        if (halfType === 'half' && !currentSecondFlavorId) {
+            alert("Por favor, escolha o segundo sabor.");
+            return;
+        }
+
+        // Build Cart Object
+        let finalName = currentModalItem.name;
+        let finalPrice = 0;
+        let flavorDetail = "";
+
+        if (currentModalItem.prices) {
+            // Complex Item
+            let price = currentModalItem.prices[selectedSize];
+
+            if (halfType === 'half') {
+                const secondItem = CONFIG.menu.find(m => m.id === currentSecondFlavorId);
+                const secondPrice = secondItem.prices[selectedSize];
+
+                finalPrice = Math.max(price, secondPrice);
+                finalName = `Pizza ${selectedSize} (${currentModalItem.name} / ${secondItem.name})`;
+                flavorDetail = "Meio-a-Meio";
+            } else {
+                finalPrice = price;
+                if (currentModalItem.category === 'pizzas') {
+                    finalName = `Pizza ${selectedSize} - ${currentModalItem.name}`;
+                    flavorDetail = "Sabor Único";
+                } else {
+                    finalName = `${currentModalItem.name} ${selectedSize}`;
+                    flavorDetail = "";
+                }
+            }
+        } else {
+            // Simple Item
+            finalPrice = currentModalItem.price;
+        }
+
+        // Add
+        addToCartExpanded({
+            id: currentModalItem.id, // Base ID (might duplicate for combinations, handled by key)
+            key: Date.now().toString(), // Unique key for custom pizzas
+            name: finalName,
+            price: finalPrice,
+            quantity: 1,
+            detail: flavorDetail
+        });
+
+        closeModal();
+    }
+
+    function openProductModal(itemId) {
+        if (!checkOpeningHours()) return;
+
+        const item = CONFIG.menu.find(m => m.id === itemId);
+        currentModalItem = item;
+        selectedSize = null;
+        currentSecondFlavorId = null;
+
+        // Populate Modal
+        document.getElementById('modal-img').src = item.image;
+        document.getElementById('modal-title').innerText = item.name;
+        document.getElementById('modal-desc').innerText = item.description;
+
+        const sizesContainer = document.getElementById('size-options');
+        sizesContainer.innerHTML = '';
+
+        const halfSection = document.getElementById('modal-half-section');
+        const priceElement = document.getElementById('modal-price');
+
+        // Logic: Simple Product vs Complex (Pizzas)
+        if (item.prices) {
+            // It's a Pizza (or item with sizes)
+            Object.keys(item.prices).forEach(size => {
+                const btn = document.createElement('button');
+                btn.className = `size-btn border border-gray-200 rounded-lg p-3 text-center hover:border-brand-red hover:bg-red-50 transition-all`;
+                btn.id = `size-${size}`;
+                btn.onclick = () => selectSize(size);
+                btn.innerHTML = `<span class="block font-bold text-gray-800">${size}</span>`;
+                sizesContainer.appendChild(btn);
+            });
+
+            // Show Half Section?
+            if (item.allowHalf) {
+                halfSection.classList.remove('hidden');
+                // Reset Toggle
+                document.querySelector('input[name="halfType"][value="single"]').checked = true;
+                toggleHalfLogic('single');
+            } else {
+                halfSection.classList.add('hidden');
+            }
+
+            // Reset Price
+            priceElement.innerText = "Selecione o tamanho";
+            priceElement.classList.remove('text-brand-red');
+            priceElement.classList.add('text-gray-400', 'text-lg');
+
+        } else {
+            // Simple Item (Drink/Sandwich)
+            sizesContainer.innerHTML = '<p class="text-gray-500 text-sm italic">Tamanho único</p>';
+            halfSection.classList.add('hidden');
+            priceElement.innerText = formatCurrency(item.price);
+            priceElement.classList.add('text-brand-red');
+            priceElement.classList.remove('text-gray-400', 'text-lg');
+
+            // Auto-select "default" size for internal logic
+            selectedSize = 'default';
+        }
+
+        // Show Modal
+        const modal = document.getElementById('product-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            document.getElementById('modal-content').classList.remove('scale-95');
+        }, 10);
+    }
 
 </script>
 

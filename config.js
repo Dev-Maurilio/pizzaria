@@ -3,23 +3,23 @@ const CONFIG = {
         name: "Pizzaria Premium",
         logoIcon: "fa-solid fa-pizza-slice", // FontAwesome Class
         whatsappNumber: "558494203878",
-        instagram: "aaaa",
+        instagram: "#",
         address: {
             street: "Rua da Pizza, 123",
             neighborhood: "Centro",
             city: "São Paulo - SP"
         },
         operatingHours: {
-            days: "Terça a Domingo",
-            hours: "18:00 às 23:30",
-            openHour: 18,
+            days: "Domingo a Domingo",
+            hours: "24 Horas",
+            openHour: 0,
             closeHour: 23,
-            closeMinute: 30,
-            closedDays: [1] // 0=Dom, 1=Seg...
+            closeMinute: 59,
+            closedDays: [] // 0=Dom, 1=Seg...
         }
     },
     business: {
-        deliveryFee: 7.00,
+        deliveryFee: 3.00,
         currencyLocale: 'pt-BR',
         currencyOptions: { style: 'currency', currency: 'BRL' }
     },
@@ -33,15 +33,17 @@ const CONFIG = {
         {
             id: 'p1',
             name: "Calabresa",
-            price: 35.00,
+            prices: { P: 30.00, M: 35.00, G: 40.00, GG: 55.00 },
+            allowHalf: true,
             category: "pizzas",
             description: "Calabresa defumada, cebola roxa e azeitonas.",
             image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=800&auto=format&fit=crop"
         },
         {
-            id: 'p2',
+            id: 'p3',
             name: "Frango c/ Catupiry",
-            price: 42.00,
+            prices: { P: 32.00, M: 42.00, G: 50.00, GG: 65.00 },
+            allowHalf: true,
             category: "pizzas",
             description: "Frango desfiado e Catupiry original gratinado.",
             image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=800&auto=format&fit=crop"
@@ -66,10 +68,10 @@ const CONFIG = {
         // BEBIDAS
         {
             id: 'b1',
-            name: "Coca-Cola 2L",
-            price: 12.00,
+            name: "Coca-Cola",
+            prices: { "1L": 6.00, "2L": 12.00},
             category: "bebidas",
-            description: "Refrigerante Coca-Cola Garrafa 2 Litros.",
+            description: "Refrigerante Coca-Cola.",
             image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=800&auto=format&fit=crop"
         },
         {
