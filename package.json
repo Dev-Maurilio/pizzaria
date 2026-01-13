@@ -1,0 +1,15 @@
+{
+  "name": "pizzaria-premium",
+  "version": "1.0.0",
+  "description": "Pizzaria delivery system",
+  "main": "index.html",
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify"
+  },
+  "keywords": [],
+  "author": "Maurilio",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
