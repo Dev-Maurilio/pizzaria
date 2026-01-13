@@ -559,7 +559,8 @@
         }
 
         // Footer Info
-        document.getElementById('footer-hours-msg').innerHTML = `${CONFIG.store.operatingHours.days}<br>${CONFIG.store.operatingHours.hours}`;
+        // Footer Info
+        document.getElementById('footer-hours-msg').innerHTML = getFormattedHoursSummary();
         document.getElementById('footer-address').innerHTML = `${CONFIG.store.address.street} - ${CONFIG.store.address.neighborhood}<br>${CONFIG.store.address.city}`;
         document.getElementById('footer-copy-name').innerText = CONFIG.store.name;
 
@@ -946,28 +947,49 @@
 
     function checkOpeningHours() {
         const date = new Date();
-        const hour = date.getHours();
-        const minute = date.getMinutes();
-        const day = date.getDay();
+        // Adjust for timezone if needed, but user asked to ignore specific timezone issues and use browser time, 
+        // effectively assumes local store time matches browser for now OR just uses simple local time.
+        // User said: "garanta que a comparação de datas e horas ignore fusos horários que possam causar erros no navegador do cliente"
+        // The safest simple way is to rely on client's wall clock as requested, or explicitly construct local date parts.
 
-        const { days, hours, openHour, closeHour, closeMinute, closedDays } = CONFIG.store.operatingHours;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const dayDate = String(date.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${dayDate}`;
+        const dayOfWeek = date.getDay(); // 0 = Domingo
 
-        // Check Closed Days
-        if (closedDays.includes(day)) {
-            alert(`🕒 Ops! Estamos fechados hoje.\n\n⏰ Horário de Funcionamento:\n${days}: ${hours}`);
+        const { closedDates, schedule } = CONFIG.store.operatingHours;
+
+        // 1. Check Specific Closed Dates (Holidays)
+        if (closedDates.includes(todayStr)) {
+            alert("📅 Recesso Especial\n\nHoje estamos fechados! Agradecemos a compreensão.");
             return false;
         }
 
-        // Check Time
-        const currentTime = hour * 60 + minute;
-        const openTimeVal = openHour * 60;
-        const closeTimeVal = closeHour * 60 + closeMinute;
+        // 2. Check Day of Week Schedule
+        const todaySchedule = schedule.find(s => s.day === dayOfWeek);
 
-        const isOpenTime = currentTime >= openTimeVal && currentTime <= closeTimeVal;
+        if (!todaySchedule || todaySchedule.closed) {
+            alert("🕒 Fechado Hoje\n\nHoje não abrimos. Confira nosso horário de funcionamento no rodapé ou redes sociais.");
+            return false;
+        }
 
-        if (isOpenTime) return true;
+        // 3. Check Time (Minutes precision)
+        const nowMinutes = (date.getHours() * 60) + date.getMinutes();
+        const openMinutes = (todaySchedule.openHour * 60) + todaySchedule.openMinute;
+        const closeMinutes = (todaySchedule.closeHour * 60) + todaySchedule.closeMinute;
 
-        alert(`🕒 Ops! Estamos fechados no momento.\n\n⏰ Horário de Funcionamento:\n${days}: ${hours}`);
+        if (nowMinutes >= openMinutes && nowMinutes <= closeMinutes) {
+            return true;
+        }
+
+        // Formatter for readable time
+        const formatTime = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+        const openStr = formatTime(todaySchedule.openHour, todaySchedule.openMinute);
+        const closeStr = formatTime(todaySchedule.closeHour, todaySchedule.closeMinute);
+
+        alert(`🕒 Ops! Estamos fechados no momento.\n\nHoje funcionamos das ${openStr} às ${closeStr}.`);
         return false;
     }
 
@@ -1434,6 +1456,31 @@
         }, 10);
     }
 
+    function getFormattedHoursSummary() {
+        const schedule = CONFIG.store.operatingHours.schedule;
+        if (!schedule) return "Consulte horários";
+
+        const daysMap = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        const fmt = (h, m) => `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+        let html = '<ul class="text-sm space-y-1">';
+
+        schedule.forEach(s => {
+            const dayName = daysMap[s.day];
+            let timeStr = "Fechado";
+            if (!s.closed) {
+                timeStr = `${fmt(s.openHour, s.openMinute)} - ${fmt(s.closeHour, s.closeMinute)}`;
+            }
+            // Highlight today
+            const isToday = new Date().getDay() === s.day;
+            const style = isToday ? 'class="text-brand-red font-bold"' : '';
+
+            html += `<li ${style}><span class="inline-block w-10">${dayName}:</span> ${timeStr}</li>`;
+        });
+
+        html += '</ul>';
+        return html;
+    }
 </script>
 
 </html>

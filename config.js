@@ -10,12 +10,18 @@ const CONFIG = {
             city: "São Paulo - SP"
         },
         operatingHours: {
-            days: "Domingo a Domingo",
-            hours: "24 Horas",
-            openHour: 0,
-            closeHour: 23,
-            closeMinute: 59,
-            closedDays: [] // 0=Dom, 1=Seg...
+            // Datas específicas de fechamento (AAAA-MM-DD)
+            closedDates: [],
+            // Configuração Semanal (0 = Domingo, 1 = Segunda, etc.)
+            schedule: [
+                { day: 0, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Domingo
+                { day: 1, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Segunda
+                { day: 2, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Terça
+                { day: 3, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Quarta
+                { day: 4, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Quinta
+                { day: 5, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }, // Sexta
+                { day: 6, openHour: 18, openMinute: 0, closeHour: 23, closeMinute: 59, closed: false }  // Sábado
+            ]
         }
     },
     business: {
@@ -69,7 +75,7 @@ const CONFIG = {
         {
             id: 'b1',
             name: "Coca-Cola",
-            prices: { "1L": 6.00, "2L": 12.00},
+            prices: { "1L": 6.00, "2L": 12.00 },
             category: "bebidas",
             description: "Refrigerante Coca-Cola.",
             image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=800&auto=format&fit=crop"
