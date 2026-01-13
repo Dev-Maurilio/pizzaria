@@ -49,3 +49,11 @@ Desenvolvido por **Maurilio**
 *Especialista em Soluções de Automação e Desenvolvimento Web*
 
 [<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30" alt="WhatsApp" /> Fale Comigo](https://wa.me/5584994203878)
+
+## 📄 Licença e Propriedade Intelectual
+
+Este software é um produto comercial desenvolvido por **Maurilio**.
+
+*   **Licença de Uso:** A aquisição deste sistema garante ao contratante uma licença de uso não exclusiva, intransferível e limitada a um único estabelecimento comercial.
+*   **Direitos Autorais:** Todos os direitos sobre o código-fonte, arquitetura de dados e lógica de negócio permanecem sob propriedade exclusiva do desenvolvedor.
+*   **Restrições:** É estritamente proibida a revenda, sublicenciamento ou distribuição de cópias deste template para terceiros sem autorização prévia por escrito.
